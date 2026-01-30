@@ -1,47 +1,94 @@
-import requests, time
-from .config import HF_API_TOKEN, HF_SUMMARY_MODEL
-from .translator import translate
+import re
+from collections import Counter
 from .text_cleaner import clean_ocr_text
 
-HEADERS = {"Authorization": f"Bearer {HF_API_TOKEN}"}
-URL = f"https://api-inference.huggingface.co/models/{HF_SUMMARY_MODEL}"
 
-def summarize(text, language):
-    # CLEAN OCR TEXT
+def summarize(text: str, language: str = "English") -> str:
+    """
+    Lightweight extractive summarization.
+    No external API.
+    Works for both English and Hindi text.
+    """
+
+    if not text or not text.strip():
+        return "Summary not available."
+
     text = clean_ocr_text(text)
 
-    if len(text) < 100:
-        return fallback_summary(text, language)
+    sentences = split_sentences(text)
 
-    # Translate input to English for better summarization
-    base_text = translate(text, "English")
+    if len(sentences) <= 2:
+        return humanize(" ".join(sentences))
 
-    payload = {"inputs": base_text[:2000]}
+    word_freq = build_word_frequency(text)
 
-    for _ in range(4):
-        r = requests.post(URL, headers=HEADERS, json=payload)
-        out = r.json()
+    sentence_scores = {}
+    for sentence in sentences:
+        score = 0
+        for word in tokenize(sentence):
+            score += word_freq.get(word, 0)
+        sentence_scores[sentence] = score
 
-        if isinstance(out, list) and "summary_text" in out[0]:
-            summary = out[0]["summary_text"]
+    top_sentences = sorted(
+        sentence_scores,
+        key=sentence_scores.get,
+        reverse=True
+    )[:2]
 
-            # Translate final summary to user language
-            if language != "English":
-                summary = translate(summary, language)
-
-            return summary
-
-        time.sleep(3)
-
-    return fallback_summary(text, language)
+    summary = " ".join(top_sentences)
+    return humanize(summary)
 
 
-# 🔁 FALLBACK (NEVER FAILS)
-def fallback_summary(text, language):
-    lines = text.split(".")
-    summary = ". ".join(lines[:3])
 
-    if language != "English":
-        summary = translate(summary, language)
+def split_sentences(text: str):
+    """
+    Splits sentences for both English (., ?, !)
+    and Hindi (।)
+    """
+    sentences = re.split(r"[.!?।]", text)
+    return [s.strip() for s in sentences if len(s.strip()) > 20]
 
-    return summary if summary else "Summary not available."
+
+def tokenize(sentence: str):
+    """
+    Tokenize words for scoring.
+    Works for English and Hindi characters.
+    """
+    return re.findall(r"[\u0900-\u097F]+|[a-zA-Z]{3,}", sentence.lower())
+
+
+def build_word_frequency(text: str):
+    """
+    Builds word frequency table.
+    Keeps logic simple & explainable.
+    """
+
+    words = tokenize(text)
+
+    stopwords = {
+        "the", "and", "that", "with", "from", "this", "were",
+        "have", "been", "will", "their", "after", "before",
+        "about", "into", "while", "there", "which", "would",
+        "could", "should", "है", "और", "था", "थे", "की", "का",
+        "में", "से", "पर", "को", "लिए"
+    }
+
+    words = [w for w in words if w not in stopwords]
+    return Counter(words)
+
+
+def humanize(summary: str) -> str:
+    """
+    Makes summary readable without over-polishing.
+    """
+    summary = summary.strip()
+    summary = summary.replace("  ", " ")
+
+    if summary and not summary.endswith(("।", ".")):
+        summary += "।" if contains_hindi(summary) else "."
+
+    return summary[0].upper() + summary[1:] if summary else "Summary not available."
+
+
+def contains_hindi(text: str) -> bool:
+    return any("\u0900" <= ch <= "\u097F" for ch in text)
