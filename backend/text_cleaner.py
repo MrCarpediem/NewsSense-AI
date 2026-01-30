@@ -1,13 +1,23 @@
+# backend/text_cleaner.py
 import re
 
-def clean_ocr_text(text):
-    # Remove junk symbols
-    text = re.sub(r"[^a-zA-Z0-9.,!?₹₹\u0900-\u097F\s]", " ", text)
+def clean_ocr_text(text: str) -> str:
+    """
+    Clean OCR text WITHOUT breaking Hindi or English grammar.
+    """
 
-    # Remove very short words (OCR garbage)
-    words = text.split()
-    words = [w for w in words if len(w) > 2]
+    if not text:
+        return ""
 
-    cleaned = " ".join(words)
+    # Normalize line breaks and spaces
+    text = text.replace("\n", " ")
+    text = re.sub(r"\s+", " ", text)
 
-    return cleaned.strip()
+    # Remove junk symbols but keep Hindi, English & punctuation
+    text = re.sub(
+        r"[^a-zA-Z0-9.,!?₹\u0900-\u097F\s]",
+        "",
+        text
+    )
+
+    return text.strip()
