@@ -16,7 +16,7 @@ init_db()
 
 st.set_page_config(
     page_title="NewsSense AI",
-    layout="wide"   # ✅ FIX 1: wide layout for smooth scrolling
+    layout="wide"   
 )
 
 # Small UI padding polish
@@ -77,7 +77,7 @@ else:
 if text.strip():
     st.subheader("Input Text")
 
-    # ✅ FIX 2: Scrollable input preview
+ 
     with st.container(height=220):
         st.write(text)
 
@@ -87,7 +87,6 @@ if text.strip():
             sentiment = cached_sentiment(text, category)
             summary = cached_summary(text, language)
 
-            # Save to database AFTER processing
             save_news(
                 title=text[:80],
                 summary=summary,
