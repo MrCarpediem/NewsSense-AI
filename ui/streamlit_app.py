@@ -96,7 +96,7 @@ if text.strip():
 
         st.subheader("Summary")
 
-        # ✅ FIX 3: Scrollable summary output
+      
         with st.container(height=180):
             st.success(summary)
 
