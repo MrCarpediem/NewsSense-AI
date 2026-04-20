@@ -30,3 +30,11 @@ def save_news(title, summary, category, sentiment):
 
     conn.commit()
     conn.close()
+
+def get_all_news():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("SELECT * FROM news ORDER BY created_at DESC")
+    rows = c.fetchall()
+    conn.close()
+    return rows

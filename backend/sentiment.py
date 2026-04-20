@@ -1,58 +1,40 @@
-# backend/sentiment.py
+from textblob import TextBlob
 
-# Generic positive & negative words (English + Hindi)
-POS = [
-    # English (UNCHANGED)
-    "success", "happy", "win", "won", "victory", "victorious",
-    "growth", "benefit", "profit", "achievement", "celebrate",
-    "celebrated", "excellent", "great", "historic", "thrilling",
-    "dominated", "dominate", "record", "champion",
+# PURE LOCAL SENTIMENT ANALYSIS
+# Uses TextBlob for English and Keyword mapping for Hindi
 
-    # Hindi (ADDED)
-    "जीत", "जीता", "विजय", "शानदार", "बेहतरीन",
-    "उत्कृष्ट", "सफल", "दबदबा", "सराहना", "खुशी"
-]
-
-NEG = [
-    # English (UNCHANGED)
-    "death", "loss", "lost", "injury", "attack", "crime",
-    "defeat", "defeated", "fail", "failure", "violence",
-    "damage", "collapse",
-
-    # Hindi (ADDED)
-    "मौत", "हार", "अपराध", "हमला", "हिंसा", "नुकसान"
-]
-
-
-def analyze_sentiment(text: str, category: str) -> str:
+def analyze_sentiment(text: str, category: str = "General") -> str:
     """
-    Rule-based sentiment analysis.
-    English logic preserved, Hindi support added.
+    Local sentiment analysis without APIs.
     """
-
     if not text:
         return "Neutral"
 
-    t = text.lower()
-
-    # Crime always negative (UNCHANGED)
+    # 1. Check for strong negative category override
     if category == "Crime":
+        # Even if crime is reported neutrally, it's generally a negative news event
         return "Negative"
 
-    # Sports-specific logic (EXTENDED, not reduced)
-    if category == "Sports":
-        if any(w in t for w in POS):
-            return "Positive"
-        if any(w in t for w in NEG):
-            return "Negative"
+    # 2. TextBlob Analysis (Works great for English locally)
+    blob = TextBlob(text)
+    polarity = blob.sentiment.polarity
 
-    # Generic fallback (UNCHANGED)
-    p = sum(1 for w in POS if w in t)
-    n = sum(1 for w in NEG if w in t)
-
-    if p > n:
+    if polarity > 0.1:
         return "Positive"
-    if n > p:
+    elif polarity < -0.1:
+        return "Negative"
+
+    # 3. Keyword-based fallback (Good for Hindi or mixed text)
+    t = text.lower()
+    pos_keywords = ["win", "success", "growth", "शानदार", "बेहतरीन", "सफल", "जीत", "खुशी", "सराहना"]
+    neg_keywords = ["death", "loss", "injury", "fail", "मौत", "हार", "अपराध", "नुकसान", "हिंसा"]
+    
+    p_score = sum(1 for w in pos_keywords if w in t)
+    n_score = sum(1 for w in neg_keywords if w in t)
+
+    if p_score > n_score:
+        return "Positive"
+    elif n_score > p_score:
         return "Negative"
 
     return "Neutral"

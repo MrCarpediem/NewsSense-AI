@@ -4,4 +4,4 @@ pillow
 pytesseract
 nltk
 textblob
-transformers
+python-dotenv

@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Project specific
+data/news.db
+temp.jpg
+uploaded.jpg
+.DS_Store
