@@ -4,4 +4,6 @@ pillow
 pytesseract
 nltk
 textblob
+scikit-learn
+joblib
 python-dotenv
