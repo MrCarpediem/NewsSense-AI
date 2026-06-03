@@ -25,14 +25,22 @@ class MLResourceLoader:
         return cls._instance
 
     def load(self):
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        models_dir = os.path.join(base_dir, 'models')
         try:
-            if os.path.exists('models/vectorizer.pkl'):
-                self.vectorizer = joblib.load('models/vectorizer.pkl')
-                self.models['Naive Bayes'] = joblib.load('models/model_nb.pkl')
-                self.models['Logistic Reg.'] = joblib.load('models/model_lr.pkl')
-                self.models['SVM (Linear)'] = joblib.load('models/model_svm.pkl')
+            vec_path = os.path.join(models_dir, 'vectorizer.pkl')
+            if os.path.exists(vec_path):
+                self.vectorizer = joblib.load(vec_path)
+                self.models['Naive Bayes'] = joblib.load(os.path.join(models_dir, 'model_nb.pkl'))
+                self.models['Logistic Reg.'] = joblib.load(os.path.join(models_dir, 'model_lr.pkl'))
+                self.models['SVM (Linear)'] = joblib.load(os.path.join(models_dir, 'model_svm.pkl'))
                 self.loaded = True
-        except: pass
+                print(f"[MLLoader] All models loaded successfully from {models_dir}")
+            else:
+                print(f"[MLLoader] Vectorizer not found at {vec_path}")
+        except Exception as e:
+            print(f"[MLLoader] Error loading models: {e}")
+            self.loaded = False
 
 def classify_all(text: str):
     results = {}
@@ -42,6 +50,9 @@ def classify_all(text: str):
     results['Rule-Based'] = {"label": best_rule if rule_scores[best_rule] > 0 else "Other", "conf": 100}
 
     loader = MLResourceLoader()
+    if not loader.loaded:
+        # Retry once in case models were retrained after initial failed load
+        loader.load()
     if loader.loaded:
         X = loader.vectorizer.transform([text])
         for name, model in loader.models.items():

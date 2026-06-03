@@ -1,62 +1,120 @@
-# 📰 NewsSense-AI
+# 🧠 NewsSense AI
 
-NewsSense-AI is an AI-powered news analysis tool that summarizes news articles and extracts meaningful insights using Natural Language Processing (NLP).
+> **Intelligent News Analysis Powered by Machine Learning**
 
-The project focuses on converting lengthy news articles into concise summaries to help users quickly understand key information.
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://python.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
----
-
-## 🚀 Features
-
-- 📌 Automatic news text summarization  
-- 🧠 NLP-based text preprocessing  
-- ⚡ Fast and lightweight processing  
-- 🛠️ Easy to extend with more AI features  
+NewsSense AI is a production-grade NLP application that summarizes, classifies, and extracts insights from news articles using multiple Machine Learning models — all running **100% locally** with zero API dependencies.
 
 ---
 
-## 🧰 Tech Stack
+## ✨ Features
 
-- Python  
-- Natural Language Processing (NLP)  
-- Machine Learning concepts  
-- Libraries: NLTK / Transformers / TextBlob (as applicable)
-
----
-
-## 🏗️ Project Workflow
-
-1. Input news article text  
-2. Text preprocessing (cleaning, tokenization)  
-3. AI-based summarization  
-4. Output concise summary  
+| Feature | Description |
+|---------|-------------|
+| 📰 **Text Summarization** | Extractive summarization using TF scoring |
+| 🏷️ **Multi-Model Classification** | Naive Bayes, Logistic Regression, SVM + Rule-Based |
+| 🔬 **Model Comparison** | Side-by-side prediction comparison across all models |
+| 😊 **Sentiment Analysis** | TextBlob + keyword-based hybrid sentiment detection |
+| 👤 **Entity Extraction** | Named Entity Recognition for people and places |
+| 📷 **OCR Support** | Extract text from news images (Tesseract) |
+| 🌐 **Bilingual** | English and Hindi support |
+| 📂 **History Tracking** | SQLite-backed analysis log with stats |
 
 ---
 
-## 📂 Project Structure
+## 🏗️ Architecture
 
+```
 NewsSense-AI/
-│── src/
-│ ├── preprocess.py
-│ ├── summarizer.py
-│── data/
-│── main.py
-│── requirements.txt
-│── README.md
-
+├── .streamlit/           # Streamlit configuration & theme
+│   └── config.toml
+├── backend/              # Core NLP engine
+│   ├── classifier.py     # ML classification (NB, LR, SVM) + rule-based
+│   ├── summarizer.py     # Extractive text summarization
+│   ├── sentiment.py      # Hybrid sentiment analysis
+│   ├── ocr_reader.py     # Tesseract OCR integration
+│   ├── text_cleaner.py   # Text preprocessing pipeline
+│   ├── database.py       # SQLite persistence layer
+│   └── config.py         # Environment & path configuration
+├── models/               # Trained ML model artifacts (.pkl)
+├── data/                 # SQLite database
+├── ui/
+│   └── streamlit_app.py  # Premium Streamlit dashboard
+├── train_models.py       # Model training script
+├── packages.txt          # System dependencies (Streamlit Cloud)
+├── requirements.txt      # Python dependencies
+└── README.md
+```
 
 ---
 
-## ⚙️ Installation
+## 🚀 Quick Start
 
-Clone the repository:
+### Local Development
+
 ```bash
+# Clone the repository
 git clone https://github.com/MrCarpediem/NewsSense-AI.git
 cd NewsSense-AI
 
-Install dependencies:
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# venv\Scripts\activate   # Windows
 
+# Install dependencies
 pip install -r requirements.txt
 
-python main.py
+# Train ML models (first time only)
+python train_models.py
 
+# Launch the app
+streamlit run ui/streamlit_app.py
+```
+
+### Deploy to Streamlit Cloud
+
+1. Push your code to GitHub
+2. Go to [share.streamlit.io](https://share.streamlit.io)
+3. Connect your repository
+4. Set **Main file path** to `ui/streamlit_app.py`
+5. Click **Deploy** — the `packages.txt` will auto-install Tesseract
+
+---
+
+## 🤖 ML Models
+
+| Model | Type | Strength |
+|-------|------|----------|
+| **Naive Bayes** | Probabilistic | Fast, good baseline |
+| **Logistic Regression** | Linear | Balanced accuracy |
+| **SVM (LinearSVC)** | Max-margin | Best for small datasets |
+| **Rule-Based** | Keyword matching | Interpretable fallback |
+
+All models are trained on a curated multi-category news dataset and serialized with `joblib`.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Streamlit with custom glassmorphism UI
+- **NLP**: NLTK, TextBlob, scikit-learn
+- **ML**: TF-IDF + MultinomialNB / LogisticRegression / LinearSVC
+- **OCR**: Tesseract (pytesseract)
+- **Database**: SQLite3
+- **Deployment**: Streamlit Cloud
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+---
+
+<p align="center">
+  Built with ❤️ by <a href="https://github.com/MrCarpediem">Prem</a>
+</p>
